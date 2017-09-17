@@ -5,7 +5,7 @@ Caitlin Lagrand
 SAT encoding for sudoku puzzles
 TODO:
     encode diagonal rule for x-sudoku and rules for sudoku stripe
-    write encodings in DIMACS
+    delete double clauses like [a, b] and [b, a]
 '''
 
 import math
@@ -147,11 +147,31 @@ def encode_sudoku(n_rows, n_columns, n_numbers):
     return encoded
 
 
+def to_DIMACS(encoding, name, number_variables):
+    ''' Convert the encoding to the DIMACS format.
+        c [filename]
+        c
+        p cnf [number_variables] [number_clauses]
+        clause_1
+        ...
+        clause_n'''
+    DIMACS_encoding = "c " + name + "\nc \n"
+    number_clauses = len(encoding)
+    DIMACS_encoding += "p cnf " + str(number_variables) + " " + \
+                        str(number_clauses) + "\n"
+    for clause in encoding:
+        for literal in clause:
+            DIMACS_encoding += (str(literal) + " ")
+        DIMACS_encoding += "0\n"
+    return DIMACS_encoding
+
+
 def main():
     # 3x3 sudoku example
     encode_sudoku3 = encode_sudoku(3, 3, 3)
     sat_sudoku3 = pycosat.solve(encode_sudoku3)
     sat_to_sudoku(sat_sudoku3, 3, 3, 3)
+    print(to_DIMACS(encode_sudoku3, "sudoku3.cnf", 3*3*3))
 
     # 9x9 sudoku example
     encode_sudoku9 = encode_sudoku(9, 9, 9)
