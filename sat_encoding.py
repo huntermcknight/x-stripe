@@ -115,6 +115,33 @@ def each_block(variables):
     return enc
 
 
+def each_diagonal(variables):
+    ''' Encode the rules for each number can only occur once per diagonal. '''
+    columns = variables.shape[0]
+    rows = variables.shape[1]
+    numbers = variables.shape[2]
+    enc = []
+    for index in range(rows):
+        one_number = []
+        for number in range(numbers):
+            # Each number must occur at least once per diagonal
+            # Left top - right bottom
+            one_number += [int(variables[index][index][number])]
+            # Right top - left bottom
+            one_number += [int(variables[index][columns-1-index][number])]
+            # Each number can only occur once per diagonal
+            for i in range(rows):
+                if i != index:
+                    # Left top - right bottom
+                    enc += [[int(-1 * variables[index][index][number]),
+                             int(-1 * variables[i][i][number])]]
+                    # Right top - left bottom
+                    enc += [[int(-1 * variables[index][columns-1-index][number]),
+                             int(-1 * variables[i][columns-1-i][number])]]
+        enc += [one_number]
+    return enc
+
+
 def sat_to_sudoku(sat_sudoku, n_rows, n_columns, n_numbers):
     ''' Pretty print the solution of the sudoku found by the SAT sovler.
         TODO: print the horizontal bar better for 16x16.'''
@@ -137,13 +164,15 @@ def sat_to_sudoku(sat_sudoku, n_rows, n_columns, n_numbers):
             print('{:-^4}'.format((n_numbers + 4)* '---'))
 
 
-def encode_sudoku(n_rows, n_columns, n_numbers):
+def encode_sudoku(n_rows, n_columns, n_numbers, x=False, stripe=False):
     ''' Encode a (n_rows x n_columns x n_numbers) sudoku. '''
     variables = create_variables(n_rows, n_columns, n_numbers)
     encoded = each_cell(variables)
     encoded += each_row(variables)
     encoded += each_column(variables)
     encoded += each_block(variables)
+    if (x):
+        encoded += each_diagonal(variables)
     return encoded
 
 
@@ -174,7 +203,7 @@ def main():
     print(to_DIMACS(encode_sudoku3, "sudoku3.cnf", 3*3*3))
 
     # 9x9 sudoku example
-    encode_sudoku9 = encode_sudoku(9, 9, 9)
+    encode_sudoku9 = encode_sudoku(9, 9, 9, True)
     sat_sudoku9 = pycosat.solve(encode_sudoku9)
     sat_to_sudoku(sat_sudoku9, 9, 9, 9)
 
