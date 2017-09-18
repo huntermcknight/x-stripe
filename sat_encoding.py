@@ -4,8 +4,7 @@
 Caitlin Lagrand
 SAT encoding for sudoku puzzles
 TODO:
-    encode diagonal rule for x-sudoku and rules for sudoku stripe
-    delete double clauses like [a, b] and [b, a]
+    encode rules for sudoku stripe
 '''
 
 import math
@@ -36,8 +35,7 @@ def each_cell(variables):
                 # Each cell has to be filled with one number
                 one_number += [int(variables[row][column][number])]
                 # Each cell can only contain one number
-                for n in range(numbers):
-                    if n != number:
+                for n in range(number + 1, numbers):
                         enc += [[int(-1 * variables[row][column][number]),
                                  int(-1 * variables[row][column][n])]]
             enc += [one_number]
@@ -57,8 +55,7 @@ def each_row(variables):
                 # Each number must occur at least once per row
                 one_number += [int(variables[row][column][number])]
                 # Each number can only occur once per row
-                for c in range(columns):
-                    if c != column:
+                for c in range(column + 1, columns):
                         enc += [[int(-1 * variables[row][column][number]),
                                  int(-1 * variables[row][c][number])]]
             enc += [one_number]
@@ -78,8 +75,7 @@ def each_column(variables):
                 # Each number must occur at least once per column
                 one_number += [int(variables[row][column][number])]
                 # Each number can only occur once per column
-                for r in range(rows):
-                    if r != row:
+                for r in range(row + 1, rows):
                         enc += [[int(-1 * variables[row][column][number]),
                                  int(-1 * variables[r][column][number])]]
             enc += [one_number]
@@ -106,9 +102,8 @@ def each_block(variables):
                                        + r_block][column*int(math.sqrt(columns))
                                        + c_block][number])]
                         # Each number can only occur once per block
-                        for r in range(int(math.sqrt(rows))):
-                            for c in range(int(math.sqrt(columns))):
-                                if (not(r == r_block and c == c_block)):
+                        for r in range(r_block + 1, int(math.sqrt(rows))):
+                            for c in range(c_block + 1, int(math.sqrt(columns))):
                                     enc += [[int(-1 * variables[row*int(math.sqrt(rows)) + r_block][column*int(math.sqrt(columns)) + c_block][number]),
                                              int(-1 * variables[row*int(math.sqrt(rows)) + r][column*int(math.sqrt(columns)) + c][number])]]
                 enc += [one_number]
@@ -130,8 +125,7 @@ def each_diagonal(variables):
             # Right top - left bottom
             one_number += [int(variables[index][columns-1-index][number])]
             # Each number can only occur once per diagonal
-            for i in range(rows):
-                if i != index:
+            for i in range(index + 1, rows):
                     # Left top - right bottom
                     enc += [[int(-1 * variables[index][index][number]),
                              int(-1 * variables[i][i][number])]]
