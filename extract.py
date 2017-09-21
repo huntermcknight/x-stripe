@@ -22,33 +22,29 @@ def extract():
 
 def encode(puzzle):
     """
-    (np.array) -> str
+    (np.array) -> np.array
 
-    Given a sudoku puzzle formatted as a numpy array, output the DIMACS cnf
-    associated with the puzzle's givens. This cnf does not encode the general
-    rules of sudoku, nor does it have a header. Those will be added at a later
-    processing step.
+    Given a sudoku puzzle formatted as a numpy array, output the cnf
+    associated with the puzzle's givens as a numpy array.
     """
 
-    cnf = ""
+    cnf = []
 
     for i in range(9):
         for j in range(9):
             if puzzle[i][j] != 0:
                 # the proposition that the cell in row i, column j
                 # takes this value becomes a unit clause
-                cnf += str(i * 81 + j * 9 + puzzle[i][j]) + " 0\n"
+                cnf.append([i * 81 + j * 9 + puzzle[i][j]])
 
-    return cnf
+    return np.array(cnf)
 
 def encode_all(puzzles):
     """
-    (np.array) -> [str]
+    (np.array) -> [np.array]
 
     Given an array of sudoku puzzles formatted as numpy arrays, output a list
-    of DIMACS cnfs associated with the puzzles' givens. These cnfs do not
-    encode the general rules of sudoku, nor do they have headers. Those will be
-    added at a later processing step.
+    of cnfs associated with the puzzles' givens.
     """
 
     cnfs = []
