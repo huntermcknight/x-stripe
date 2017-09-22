@@ -5,7 +5,7 @@ import subprocess
 
 def solve(clauses):
     """
-    [np.array] -> [str]
+    ([[int]]) -> [str]
 
     Given a cnf formatted as a numpy array, submit the cnf
     to zchaff and return zchaff's output as a list of strings.
@@ -42,7 +42,7 @@ def solve(clauses):
 
 def is_sat(result):
     """
-    [str] -> bool
+    ([str]) -> bool
 
     Read zchaff output to determine if a puzzle was satisfiable.
     Modified from David Musicant's original script
@@ -67,7 +67,7 @@ def is_sat(result):
 
 def get_metrics(result):
     """
-    [str] -> (int, int, int)
+    ([str]) -> (int, int, int)
 
     Read zchaff output and return the Max Decision Level,
     Num. of Decisions, and Added Conflict Clauses.

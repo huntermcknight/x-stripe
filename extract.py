@@ -5,7 +5,7 @@ import numpy as np
 
 def extract():
     """
-    () -> np.array
+    (None) -> np.array
 
     Given a .csv of 1,000,000 standard 9x9 sudoku puzzles and their solutions,
     export the puzzles into a numpy array.
@@ -22,10 +22,10 @@ def extract():
 
 def encode(puzzle):
     """
-    (np.array) -> np.array
+    (np.array) -> [[int]]
 
     Given a sudoku puzzle formatted as a numpy array, output the cnf
-    associated with the puzzle's givens as a numpy array.
+    associated with the puzzle's givens.
     """
 
     cnf = []
@@ -37,11 +37,11 @@ def encode(puzzle):
                 # takes this value becomes a unit clause
                 cnf.append([i * 81 + j * 9 + puzzle[i][j]])
 
-    return np.array(cnf)
+    return cnf
 
 def encode_all(puzzles):
     """
-    (np.array) -> [np.array]
+    (np.array) -> [[[int]]]
 
     Given an array of sudoku puzzles formatted as numpy arrays, output a list
     of cnfs associated with the puzzles' givens.
