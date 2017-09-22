@@ -13,7 +13,7 @@ def solve(clauses):
     Modified from David Musicant's original script
     https://github.com/FatTony746/clueReasoner/blob/master/SATSolver.py
     """
-
+    # create a cnf file to pass to zchaff
     maxVar = 0
     for clause in clauses:
         for literal in clause:
@@ -27,8 +27,12 @@ def solve(clauses):
             print(literal, end = ' ', file = out)
         print('0', file = out)
     out.close();
+
+    # pass the cnf file to zchaff
     process = subprocess.Popen('/usr/local/zchaff64/zchaff query.cnf',stdout=subprocess.PIPE,
                 shell=True, universal_newlines=True)
+    # if necessary, change the preceding path name to point
+    # to zchaff on your machine
     process.wait()
     stdout = process.stdout
     result = stdout.read().split()
