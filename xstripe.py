@@ -67,7 +67,7 @@ def main():
             # stripe_comparison_metrics.append(stripe_metrics)
         # print a progress update for every 10% completed
         if (i + 1) % (len(puzzle_cnfs) // 10) == 0:
-            print(str((i + 1) // (len(puzzle_cnfs) // 10) + '0%...')
+            print(str((i + 1) // (len(puzzle_cnfs) // 10) + '0%...'))
     print('Solved.')
 
     print(str(count_valid_x) + ' puzzles solvable as x-sudoku')
