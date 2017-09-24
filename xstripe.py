@@ -4,7 +4,9 @@
 import csv
 from extract import extract, encode_all, compress, decode
 from solver import *
-from sat_encoding import encode_sudoku
+from sat_encoding import encode_sudoku, sat_to_sudoku
+
+DEBUG = True
 
 def solve_as(puzzle, rules):
     """
@@ -23,6 +25,8 @@ def solve_as(puzzle, rules):
 
     if metrics[0]:
         solution = get_solution(result)
+        if (DEBUG):
+            sat_to_sudoku(solution, 9, 9, 9)
     else:
         solution = ''
 
@@ -42,7 +46,7 @@ def main():
     # for testing purposes, use only the first 100 puzzles
     # for experiment, use all puzzles
     print('Encoding puzzles as cnfs...')
-    puzzle_cnfs = encode_all(puzzles)
+    puzzle_cnfs = encode_all(puzzles[:100])
     print('Encoded.')
 
     print('Encoding rules for x-sudoku...')
@@ -112,6 +116,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
-

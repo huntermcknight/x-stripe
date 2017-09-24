@@ -19,6 +19,12 @@ def extract():
 
     http://staffhome.ecm.uwa.edu.au/~00013890/sudokumin.php
     """
+
+    # Test only an x or stripe sudoku
+    # n_sudokus = 3
+    # puzzles = np.zeros((n_sudokus, 81), np.int32)
+    # for i, line in enumerate(open('stripe_test_sudoku.csv', 'r').read().splitlines()[1:]):
+    # for i, line in enumerate(open('x_test_sudoku.csv', 'r').read().splitlines()):
     puzzles = np.zeros((49151, 81), np.int32)
     for i, line in enumerate(open('sudoku17.txt', 'r').read().splitlines()):
         for j, p in enumerate(line):
@@ -98,6 +104,3 @@ def decode(var_list):
             solution[row][col] = cell
 
     return solution
-
-
-
