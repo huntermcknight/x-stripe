@@ -2,7 +2,7 @@
 # KRCourse 2017
 
 import csv
-from extract import extract, encode_all
+from extract import extract, encode_all, compress, decode
 from solver import *
 from sat_encoding import encode_sudoku, sat_to_sudoku
 
@@ -20,10 +20,17 @@ def solve_as(puzzle, rules):
     full_cnf = rules + puzzle
 
     result = solve(full_cnf)
-    if (DEBUG and is_sat(result)):
-        sat_to_sudoku(result[17:17+9*9*9], 9, 9, 9)
 
-    return is_sat(result), get_metrics(result)
+    metrics = get_metrics(result)
+
+    if metrics[0]:
+        solution = get_solution(result)
+        if (DEBUG):
+            sat_to_sudoku(solution, 9, 9, 9)
+    else:
+        solution = ''
+
+    return metrics, solution
 
 def main():
     """
@@ -39,7 +46,7 @@ def main():
     # for testing purposes, use only the first 100 puzzles
     # for experiment, use all puzzles
     print('Encoding puzzles as cnfs...')
-    puzzle_cnfs = encode_all(puzzles)
+    puzzle_cnfs = encode_all(puzzles[:100])
     print('Encoded.')
 
     print('Encoding rules for x-sudoku...')
@@ -51,42 +58,60 @@ def main():
 
     count_valid_x = 0
     count_valid_stripe = 0
+    count_valid_both = 0
     x_comparison_metrics = []
     stripe_comparison_metrics = []
+    x_solutions = []
+    stripe_solutions = []
 
     print('Solving puzzles...')
     for i in range(len(puzzle_cnfs)):
-        is_sat_x, x_metrics = solve_as(puzzle_cnfs[i], x_rules)
+        x_metrics, x_solution = solve_as(puzzle_cnfs[i], x_rules)
 
-        if is_sat_x:
+        if x_metrics[0]:
             count_valid_x += 1
+            x_solutions.append((compress(puzzles[i]), compress(decode(x_solution))))
 
-        is_sat_stripe, stripe_metrics = solve_as(puzzle_cnfs[i], stripe_rules)
+        stripe_metrics, stripe_solution = solve_as(puzzle_cnfs[i], stripe_rules)
 
-        if is_sat_stripe:
+        if stripe_metrics[0]:
             count_valid_stripe += 1
-
-        # if (is_sat_x and is_sat_stripe):
+            stripe_solutions.append((compress(puzzles[i]), compress(decode(stripe_solution))))
+            if x_metrics[1]:
+                count_valid_both += 1
         x_comparison_metrics.append(x_metrics)
-            # stripe_comparison_metrics.append(stripe_metrics)
+        #stripe_comparison_metrics.append(stripe_metrics)
+
         # print a progress update for every 10% completed
-        # if (i + 1) % (len(puzzle_cnfs) // 10) == 0:
-        #     print(str((i + 1) // (len(puzzle_cnfs) // 10)) + '0%...')
+        if (i + 1) % (len(puzzle_cnfs) // 10) == 0:
+            print(str((i + 1) // (len(puzzle_cnfs) // 10)) + '0%...')
+            print(str(count_valid_x) + ' puzzles solvable as x-sudoku')
+            print(str(count_valid_stripe) + ' puzzles solvable as sudoku stripe')
+            print(str(count_valid_both) + ' puzzles solvable both ways')
     print('Solved.')
-
-    print(str(count_valid_x) + ' puzzles solvable as x-sudoku')
-    print(str(count_valid_stripe) + ' puzzles solvable as sudoku stripe')
-    print(str(len(stripe_comparison_metrics)) + ' puzzles solvable both ways')
-
 
     print('Writing metrics to metrics.csv...')
     with open('metrics.csv', mode = 'w') as output:
         csv_output = csv.writer(output)
-        csv_output.writerow(('x_max_level', 'x_num_decisions', 'x_conflicts'))
+        csv_output.writerow(('x_satisfiable', 'x_max_level', 'x_num_decisions', 'x_conflicts'))
         for row in x_comparison_metrics:
             csv_output.writerow(row)
         # TODO: print sudoku stripe metrics
     print('Written.')
+
+    print('Writing solutions to x-solutions.csv...')
+    with open('x-solutions.csv', mode = 'w') as solutions:
+        csv_output = csv.writer(solutions)
+        for pair in x_solutions:
+            csv_output.writerow(pair)
+    print('Written')
+
+    print('Writing solutions to stripe-solutions.csv...')
+    with open('stripe-solutions.csv', mode = 'w') as solutions:
+        csv_output = csv.writer(solutions)
+        for pair in stripe_solutions:
+            csv_output.writerow(pair)
+    print('Written')
 
 
 if __name__ == '__main__':
