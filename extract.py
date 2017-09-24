@@ -12,8 +12,13 @@ def extract():
 
     Modified from Bryan Park's script to extract puzzles from his sudoku dataset.
     """
-    puzzles = np.zeros((1000000, 81), np.int32)
-    for i, line in enumerate(open('sudoku.csv', 'r').read().splitlines()[1:]):
+    # Test only an x or stripe sudoku
+    n_sudokus = 3
+    puzzles = np.zeros((n_sudokus, 81), np.int32)
+    for i, line in enumerate(open('stripe_test_sudoku.csv', 'r').read().splitlines()[1:]):
+    # for i, line in enumerate(open('x_test_sudoku.csv', 'r').read().splitlines()):
+    # puzzles = np.zeros((1000000, 81), np.int32)
+    # for i, line in enumerate(open('sudoku.csv', 'r').read().splitlines()[1:]):
         puzzle, solution = line.split(",")
         for j, p in enumerate(puzzle):
             puzzles[i, j] = p
@@ -53,4 +58,3 @@ def encode_all(puzzles):
         cnfs.append(encode(puzzle))
 
     return cnfs
-
