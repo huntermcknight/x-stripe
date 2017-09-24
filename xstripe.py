@@ -6,8 +6,6 @@ from extract import extract, encode_all, compress, decode
 from solver import *
 from sat_encoding import encode_sudoku, sat_to_sudoku
 
-DEBUG = True
-
 def solve_as(puzzle, rules):
     """
     ([[int]], [[int]]) -> bool, (int, int, int)
@@ -25,8 +23,6 @@ def solve_as(puzzle, rules):
 
     if metrics[0]:
         solution = get_solution(result)
-        if (DEBUG):
-            sat_to_sudoku(solution, 9, 9, 9)
     else:
         solution = ''
 
@@ -46,7 +42,7 @@ def main():
     # for testing purposes, use only the first 100 puzzles
     # for experiment, use all puzzles
     print('Encoding puzzles as cnfs...')
-    puzzle_cnfs = encode_all(puzzles[:100])
+    puzzle_cnfs = encode_all(puzzles)
     print('Encoded.')
 
     print('Encoding rules for x-sudoku...')
@@ -94,9 +90,9 @@ def main():
     print('Writing metrics to metrics.csv...')
     with open('metrics.csv', mode = 'w') as output:
         csv_output = csv.writer(output)
-        csv_output.writerow(('x_satisfiable', 'x_max_level', 'x_num_decisions', 'x_conflicts'))
+        csv_output.writerow(('x_satisfiable', 'x_max_level', 'x_num_decisions', 'x_conflicts', 'stripe_satisfiable', 'stripe_max_levl', 'stripe_num_decisions', 'stripe_conflicts'))
         for row in zip(x_comparison_metrics, stripe_comparison_metrics):
-            csv_output.writerow(row)
+            csv_output.writerow((row[0][0], row[0][1], row[0][2], row[0][3], row[1][0], row[1][1], row[1][2], row[1][3]))
     print('Written.')
 
     print('Writing solutions to x-solutions.csv...')
