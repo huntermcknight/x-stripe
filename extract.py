@@ -7,7 +7,7 @@ def extract():
     """
     (None) -> np.array
 
-    Given a .csv of 3200 minimal 9x9 sudoku puzzles and their solutions,
+    Given a .txt of 49151 minimal 9x9 sudoku puzzles and their solutions,
     export the puzzles into a numpy array.
 
     Modified from Bryan Park's script to extract puzzles from his sudoku dataset
@@ -15,10 +15,12 @@ def extract():
 
     https://www.kaggle.com/bryanpark/sudoku
 
-    Dataset created by Daan Smedinga, inspired by Bryan Park.
+    Dataset created by Sandy Gordon at UWA.
+
+    http://staffhome.ecm.uwa.edu.au/~00013890/sudokumin.php
     """
-    puzzles = np.zeros((3200, 81), np.int32)
-    for i, line in enumerate(open('minimal_sudokus.csv', 'r').read().splitlines()):
+    puzzles = np.zeros((49151, 81), np.int32)
+    for i, line in enumerate(open('sudoku17.txt', 'r').read().splitlines()):
         for j, p in enumerate(line):
             puzzles[i, j] = p
     puzzles = puzzles.reshape((-1, 9, 9))
@@ -89,17 +91,9 @@ def decode(var_list):
         # we only care what numbers actually are in a cell
         var = int(var)
         if var > 0:
-            # don't overestimate the row when col = 8 and cell = 9
-            if (var % 81) != 0:
-                row = var // 81
-            else:
-                row = (var // 81) - 1
-            # don't overestimate the col when cell = 9
-            if ((var - row * 81) % 9) != 0:
-                col = (var - row * 81) // 9
-            else:
-                col = ((var - row * 81) // 9) - 1
-            cell = var - row * 81 - col * 9
+            cell = ((var - 1) % 9) + 1
+            col = ((var - cell) % 81) // 9
+            row = ((var - col * 9 - cell)) // 81
 
             solution[row][col] = cell
 

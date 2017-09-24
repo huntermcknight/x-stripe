@@ -48,9 +48,9 @@ def main():
     print('Encoding rules for x-sudoku...')
     x_rules = encode_sudoku(9, 9, 9, x = True)
     print('Encoded.')
-    # print('Encoding rules for sudoku stripe...')
-    # stripe_rules = encode_sudoku(9, 9, 9, stripe = True)
-    # print('Encoded.')
+    print('Encoding rules for sudoku stripe...')
+    stripe_rules = encode_sudoku(9, 9, 9, stripe = True)
+    print('Encoded.')
 
     count_valid_x = 0
     count_valid_stripe = 0
@@ -66,21 +66,21 @@ def main():
 
         if x_metrics[0]:
             count_valid_x += 1
-            x_solutions.append((compress(puzzles[i]), compress(decode(x_solution))))
+            x_solutions.append((i, compress(puzzles[i]), compress(decode(x_solution))))
 
-        # stripe_metrics, stripe_solution = solve_as(puzzle_cnfs[i], stripe_rules)
+        stripe_metrics, stripe_solution = solve_as(puzzle_cnfs[i], stripe_rules)
 
-        # if stripe_metrics[0]:
-            # count_valid_stripe += 1
-            # stripe_solutions.append((compress(puzzles[i]), compress(decode(stripe_solution))))
-            # if x_metrics[1]:
-                #count_valid_both += 1
+        if stripe_metrics[0]:
+            count_valid_stripe += 1
+            stripe_solutions.append((i, compress(puzzles[i]), compress(decode(stripe_solution))))
+            if x_metrics[1]:
+                count_valid_both += 1
 
         x_comparison_metrics.append(x_metrics)
-        #stripe_comparison_metrics.append(stripe_metrics)
+        stripe_comparison_metrics.append(stripe_metrics)
 
         # print a progress update for every 10% completed
-        if (i + 1) % (len(puzzle_cnfs) // 10) == 0:
+        if len(puzzle_cnfs) > 10 and (i + 1) % (len(puzzle_cnfs) // 10) == 0:
             print(str((i + 1) // (len(puzzle_cnfs) // 10)) + '0%...')
             print(str(count_valid_x) + ' puzzles solvable as x-sudoku')
             print(str(count_valid_stripe) + ' puzzles solvable as sudoku stripe')
@@ -91,9 +91,8 @@ def main():
     with open('metrics.csv', mode = 'w') as output:
         csv_output = csv.writer(output)
         csv_output.writerow(('x_satisfiable', 'x_max_level', 'x_num_decisions', 'x_conflicts'))
-        for row in x_comparison_metrics:
+        for row in zip(x_comparison_metrics, stripe_comparison_metrics):
             csv_output.writerow(row)
-        # TODO: print sudoku stripe metrics
     print('Written.')
 
     print('Writing solutions to x-solutions.csv...')
