@@ -40,39 +40,15 @@ def solve(clauses):
 
     return result
 
-def is_sat(result):
-    """
-    ([str]) -> bool
-
-    Read zchaff output to determine if a puzzle was satisfiable.
-    Modified from David Musicant's original script
-    https://github.com/FatTony746/clueReasoner/blob/master/SATSolver.py
-    """
-
-    words = iter(result)
-    try:
-        while str(next(words)) != 'RESULT:':
-            pass
-        answer = str(next(words))
-        if answer == 'SAT':
-            return True
-        elif answer == 'UNSAT':
-            return False
-        else:
-            print("Error: SAT/UNSAT not indicated.")
-            return False
-    except StopIteration:
-            print("Error: Unexpected file end.")
-            return False
-
 def get_metrics(result):
     """
-    ([str]) -> (int, int, int)
+    ([str]) -> (bool, int, int, int)
 
-    Read zchaff output and return the Max Decision Level,
-    Num. of Decisions, and Added Conflict Clauses.
+    Read zchaff output and return the instance satisfiability,
+    Max Decision Level, Num. of Decisions, and Added Conflict Clauses.
     """
 
+    sat = False
     level = 0
     decisions = 0
     conflicts = 0
@@ -90,7 +66,39 @@ def get_metrics(result):
         # we have one more string to get out of the way, 'Clauses'
         next(words)
         conflicts = int(next(words))
+        while str(next(words)) != 'RESULT:':
+            pass
+        answer = str(next(words))
+        if answer == 'SAT':
+            sat = True
+        elif answer == 'UNSAT':
+            sat = False
+        else:
+            print("Error: SAT/UNSAT not indicated.")
     except StopIteration:
             print("Error: Unexpected file end.")
 
-    return (level, decisions, conflicts)
+    return (sat, level, decisions, conflicts)
+
+def get_solution(result):
+    """
+    ([str]) -> [str]
+
+    Read zchaff output for a satisfiable instance and
+    return a list of satisfying variable assignments.
+    """
+
+    var_list = []
+
+    words = iter(result)
+    try:
+        while next(words) != 'Satisfiable':
+            pass
+        var = next(words)
+        while var != 'Random':
+            var_list.append(var)
+            var = next(words)
+    except StopIteration:
+            print("Error: Unexpected file end.")
+
+    return var_list
