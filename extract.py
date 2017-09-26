@@ -96,7 +96,6 @@ def decode(var_list):
         # negative clauses tell us what numbers don't go in a cell
         # we only care what numbers actually are in a cell
         var = int(var)
-        print(var)
         if var > 0 and var < 730:
             cell = ((var - 1) % 9) + 1
             col = ((var - cell) % 81) // 9

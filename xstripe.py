@@ -36,7 +36,7 @@ def main():
     and sudoku stripes. Print a file of solution metrics.
     """
 
-    print('Extracting puzzles from sudoku.csv...')
+    print('Extracting puzzles from sudoku17.txt...')
     puzzles = extract()
     print('Extracted.')
     # for testing purposes, use only the first 100 puzzles
@@ -73,7 +73,7 @@ def main():
         if stripe_metrics[0]:
             count_valid_stripe += 1
             stripe_solutions.append((i, compress(puzzles[i]), compress(decode(stripe_solution))))
-            if x_metrics[1]:
+            if x_metrics[0]:
                 count_valid_both += 1
 
         x_comparison_metrics.append(x_metrics)
