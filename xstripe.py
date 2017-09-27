@@ -90,7 +90,7 @@ def main():
     print('Writing metrics to metrics.csv...')
     with open('metrics.csv', mode = 'w') as output:
         csv_output = csv.writer(output)
-        csv_output.writerow(('x_satisfiable', 'x_max_level', 'x_num_decisions', 'x_conflicts', 'stripe_satisfiable', 'stripe_max_levl', 'stripe_num_decisions', 'stripe_conflicts'))
+        csv_output.writerow(('x_satisfiable', 'x_max_level', 'x_num_decisions', 'x_conflicts', 'stripe_satisfiable', 'stripe_max_level', 'stripe_num_decisions', 'stripe_conflicts'))
         for row in zip(x_comparison_metrics, stripe_comparison_metrics):
             csv_output.writerow((row[0][0], row[0][1], row[0][2], row[0][3], row[1][0], row[1][1], row[1][2], row[1][3]))
     print('Written.')
