@@ -2,11 +2,12 @@
 # KRCourse 2017
 
 import csv
+import sys
 from extract import extract, encode_all, compress, decode
 from solver import *
 from sat_encoding import encode_sudoku, sat_to_sudoku
 
-def solve_as(puzzle, rules):
+def solve_as(puzzle, rules, satsolver= 'zchaff'):
     """
     ([[int]], [[int]]) -> bool, (int, int, int)
 
@@ -17,18 +18,18 @@ def solve_as(puzzle, rules):
 
     full_cnf = rules + puzzle
 
-    result = solve(full_cnf)
+    result = solve(full_cnf, satsolver)
 
-    metrics = get_metrics(result)
+    metrics = get_metrics(result, satsolver)
 
     if metrics[0]:
-        solution = get_solution(result)
+        solution = get_solution(result, satsolver)
     else:
         solution = ''
 
     return metrics, solution
 
-def main():
+def main(satsolver = 'zchaff'):
     """
     (None) -> None
 
@@ -62,13 +63,13 @@ def main():
 
     print('Solving puzzles...')
     for i in range(len(puzzle_cnfs)):
-        x_metrics, x_solution = solve_as(puzzle_cnfs[i], x_rules)
+        x_metrics, x_solution = solve_as(puzzle_cnfs[i], x_rules, satsolver)
 
         if x_metrics[0]:
             count_valid_x += 1
             x_solutions.append((i, compress(puzzles[i]), compress(decode(x_solution))))
 
-        stripe_metrics, stripe_solution = solve_as(puzzle_cnfs[i], stripe_rules)
+        stripe_metrics, stripe_solution = solve_as(puzzle_cnfs[i], stripe_rules, satsolver)
 
         if stripe_metrics[0]:
             count_valid_stripe += 1
@@ -111,4 +112,7 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    if(len(sys.argv) > 1):
+        main(sys.argv[1])
+    else:
+        main()

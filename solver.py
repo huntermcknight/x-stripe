@@ -3,12 +3,13 @@
 
 import subprocess
 
-def solve(clauses):
+def solve(clauses, satsolver='zchaff'):
     """
     ([[int]]) -> [str]
 
     Given a cnf formatted as a numpy array, submit the cnf
-    to zchaff and return zchaff's output as a list of strings.
+    to a SAT solver (zchaff or cadical) and return the sovler's output
+    as a list of strings.
 
     Modified from David Musicant's original script
     https://github.com/FatTony746/clueReasoner/blob/master/SATSolver.py
@@ -28,11 +29,16 @@ def solve(clauses):
         print('0', file = out)
     out.close();
 
-    # pass the cnf file to zchaff
-    process = subprocess.Popen('/usr/local/zchaff64/zchaff query.cnf',stdout=subprocess.PIPE,
-                shell=True, universal_newlines=True)
+    if(satsolver == 'cadical'):
+        # pass the cnf to cadical
+        process = subprocess.Popen('./cadical-master/build/cadical query.cnf',stdout=subprocess.PIPE, shell=True, universal_newlines=True)
+    else:
+        # pass the cnf file to zchaff
+        process = subprocess.Popen('/usr/local/zchaff64/zchaff query.cnf',stdout=subprocess.PIPE, shell=True, universal_newlines=True)
+
+
     # if necessary, change the preceding path name to point
-    # to zchaff on your machine
+    # to zchaff or cadical on your machine
     process.wait()
     stdout = process.stdout
     result = stdout.read().split()
@@ -40,11 +46,11 @@ def solve(clauses):
 
     return result
 
-def get_metrics(result):
+def get_metrics(result, satsolver = 'zchaff'):
     """
     ([str]) -> (bool, int, int, int)
 
-    Read zchaff output and return the instance satisfiability,
+    Read solver output and return the instance satisfiability,
     Max Decision Level, Num. of Decisions, and Added Conflict Clauses.
     """
 
@@ -54,51 +60,88 @@ def get_metrics(result):
     conflicts = 0
 
     words = iter(result)
-    try:
-        while next(words) != 'Level':
-            pass
-        level = int(next(words))
-        while next(words) != 'Decisions':
-            pass
-        decisions = int(next(words))
-        while next(words) != 'Conflict':
-            pass
-        # we have one more string to get out of the way, 'Clauses'
-        next(words)
-        conflicts = int(next(words))
-        while str(next(words)) != 'RESULT:':
-            pass
-        answer = str(next(words))
-        if answer == 'SAT':
-            sat = True
-        elif answer == 'UNSAT':
-            sat = False
-        else:
-            print("Error: SAT/UNSAT not indicated.")
-    except StopIteration:
-            print("Error: Unexpected file end.")
+
+    if(satsolver == 'cadical'):
+        try:
+            while next(words) != 's':
+                pass
+            answer = str(next(words))
+            if answer == 'SATISFIABLE':
+                sat = True
+            elif answer == 'UNSATISFIABLE':
+                sat = False
+            else:
+                print("Error: SAT/UNSAT not indicated.")
+            while next(words) != 'decisions:':
+                pass
+            decisions = int(next(words))
+            while next(words) != 'learned:':
+                pass
+            conflicts = int(next(words))
+            # Note: cadical does not report max level
+
+        except StopIteration:
+                print("Error: Unexpected file end.")
+    else:
+        try:
+            while next(words) != 'Level':
+                pass
+            level = int(next(words))
+            while next(words) != 'Decisions':
+                pass
+            decisions = int(next(words))
+            while next(words) != 'Conflict':
+                pass
+            # we have one more string to get out of the way, 'Clauses'
+            next(words)
+            conflicts = int(next(words))
+            while str(next(words)) != 'RESULT:':
+                pass
+            answer = str(next(words))
+            if answer == 'SAT':
+                sat = True
+            elif answer == 'UNSAT':
+                sat = False
+            else:
+                print("Error: SAT/UNSAT not indicated.")
+        except StopIteration:
+                print("Error: Unexpected file end.")
 
     return (sat, level, decisions, conflicts)
 
-def get_solution(result):
+def get_solution(result, satsolver = 'zchaff'):
     """
     ([str]) -> [str]
 
-    Read zchaff output for a satisfiable instance and
+    Read solver output for a satisfiable instance and
     return a list of satisfying variable assignments.
     """
 
     var_list = []
 
     words = iter(result)
-    try:
-        while next(words) != 'Satisfiable':
-            pass
-        var = next(words)
-        while var != 'Random':
-            var_list.append(var)
+
+    if(satsolver == 'cadical'):
+        try:
+            while next(words) != 'v':
+                pass
             var = next(words)
-    except StopIteration:
-            print("Error: Unexpected file end.")
+            while var != '0':
+                if(var != 'v'):
+                    var_list.append(var)
+                var = next(words)
+        except StopIteration:
+                print("Error: Unexpected file end.")
+
+    else:
+        try:
+            while next(words) != 'Satisfiable':
+                pass
+            var = next(words)
+            while var != 'Random':
+                var_list.append(var)
+                var = next(words)
+        except StopIteration:
+                print("Error: Unexpected file end.")
 
     return var_list
