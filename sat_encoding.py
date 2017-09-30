@@ -3,8 +3,10 @@
 '''
 Caitlin Lagrand
 SAT encoding for sudoku puzzles
-TODO:
-    don't use naive encoding
+Minimal encoding as suggested by:
+http://www.cs.cmu.edu/~hjain/papers/sudoku-as-SAT.pdf
+https://people.mpi-sws.org/~joel/publications/sudoku05.pdf
+At least one cell ^ at most one row ^ at most one column ^ at most one block
 '''
 
 import itertools
@@ -35,10 +37,11 @@ def each_cell(variables):
             for number in range(numbers):
                 # Each cell has to be filled with one number
                 one_number += [int(variables[row][column][number])]
+                # Not needed with minimal encoding
                 # Each cell can only contain one number
-                for n in range(number + 1, numbers):
-                        enc += [[int(-1 * variables[row][column][number]),
-                                 int(-1 * variables[row][column][n])]]
+                # for n in range(number + 1, numbers):
+                #         enc += [[int(-1 * variables[row][column][number]),
+                #                  int(-1 * variables[row][column][n])]]
             enc += [one_number]
     return enc
 
@@ -51,15 +54,16 @@ def each_row(variables):
     enc = []
     for row in range(rows):
         for number in range(numbers):
-            one_number = []
+            # Not needed with minimal encoding
+            # one_number = []
             for column in range(columns):
                 # Each number must occur at least once per row
-                one_number += [int(variables[row][column][number])]
+                # one_number += [int(variables[row][column][number])]
                 # Each number can only occur once per row
                 for c in range(column + 1, columns):
                         enc += [[int(-1 * variables[row][column][number]),
                                  int(-1 * variables[row][c][number])]]
-            enc += [one_number]
+            # enc += [one_number]
     return enc
 
 
@@ -71,15 +75,16 @@ def each_column(variables):
     enc = []
     for column in range(columns):
         for number in range(numbers):
-            one_number = []
+            # Not needed with minimal encoding
+            # one_number = []
             for row in range(rows):
                 # Each number must occur at least once per column
-                one_number += [int(variables[row][column][number])]
+                # one_number += [int(variables[row][column][number])]
                 # Each number can only occur once per column
                 for r in range(row + 1, rows):
                         enc += [[int(-1 * variables[row][column][number]),
                                  int(-1 * variables[r][column][number])]]
-            enc += [one_number]
+            # enc += [one_number]
     return enc
 
 
@@ -95,19 +100,20 @@ def each_block(variables):
     for row in range(int(math.sqrt(rows))):
         for column in range(int(math.sqrt(columns))):
             for number in range(numbers):
-                one_number = []
+                # Not needed with minimal encoding
+                # one_number = []
                 for r_block in range(int(math.sqrt(rows))):
                     for c_block in range(int(math.sqrt(columns))):
                         # Each number must occur at least once per block
-                        one_number += [int(variables[row*int(math.sqrt(rows))
-                                       + r_block][column*int(math.sqrt(columns))
-                                       + c_block][number])]
+                        # one_number += [int(variables[row*int(math.sqrt(rows))
+                                    #    + r_block][column*int(math.sqrt(columns))
+                                    #    + c_block][number])]
                         # Each number can only occur once per block
                         for r in range(r_block + 1, int(math.sqrt(rows))):
                             for c in range(c_block + 1, int(math.sqrt(columns))):
                                     enc += [[int(-1 * variables[row*int(math.sqrt(rows)) + r_block][column*int(math.sqrt(columns)) + c_block][number]),
                                              int(-1 * variables[row*int(math.sqrt(rows)) + r][column*int(math.sqrt(columns)) + c][number])]]
-                enc += [one_number]
+                # enc += [one_number]
     return enc
 
 
@@ -118,13 +124,14 @@ def each_diagonal(variables):
     numbers = variables.shape[2]
     enc = []
     for index in range(rows):
-        one_number = []
+        # Not needed with minimal encoding
+        # one_number = []
         for number in range(numbers):
             # Each number must occur at least once per diagonal
             # Left top - right bottom
-            one_number += [int(variables[index][index][number])]
+            # one_number += [int(variables[index][index][number])]
             # Right top - left bottom
-            one_number += [int(variables[index][columns-1-index][number])]
+            # one_number += [int(variables[index][columns-1-index][number])]
             # Each number can only occur once per diagonal
             for i in range(index + 1, rows):
                     # Left top - right bottom
@@ -133,7 +140,7 @@ def each_diagonal(variables):
                     # Right top - left bottom
                     enc += [[int(-1 * variables[index][columns-1-index][number]),
                              int(-1 * variables[i][columns-1-i][number])]]
-        enc += [one_number]
+        # enc += [one_number]
     return enc
 
 
