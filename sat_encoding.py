@@ -110,7 +110,7 @@ def each_block(variables):
                                     #    + c_block][number])]
                         # Each number can only occur once per block
                         for r in range(r_block + 1, int(math.sqrt(rows))):
-                            for c in range(c_block + 1, int(math.sqrt(columns))):
+                            for c in range(int(math.sqrt(columns))):
                                     enc += [[int(-1 * variables[row*int(math.sqrt(rows)) + r_block][column*int(math.sqrt(columns)) + c_block][number]),
                                              int(-1 * variables[row*int(math.sqrt(rows)) + r][column*int(math.sqrt(columns)) + c][number])]]
                 # enc += [one_number]
